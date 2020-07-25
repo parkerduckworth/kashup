@@ -12,11 +12,11 @@ defmodule Kashup.Element do
   end
 
   def create(value, expiration) do
-    Kashup.Supervisor.start_child(value, expiration)
+    Kashup.Element.Supervisor.start_child(value, expiration)
   end
 
   def create(value) do
-    Kashup.Supervisor.start_child(value, :infinity)
+    Kashup.Element.Supervisor.start_child(value, :infinity)
   end
 
   def fetch(pid) do

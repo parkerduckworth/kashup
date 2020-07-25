@@ -5,6 +5,7 @@ defmodule Kashup.Store do
 
   def insert(key, pid) do
     :ets.insert(__MODULE__, {key, pid})
+    :ok
   end
 
   def lookup(key) do

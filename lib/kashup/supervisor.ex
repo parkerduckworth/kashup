@@ -1,26 +1,35 @@
 defmodule Kashup.Supervisor do
-  use DynamicSupervisor
+  use Supervisor
 
-  def start_link(init_arg) do
-    DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
-  end
+  import Supervisor.Spec
 
-  def start_child(value, expiration) do
-    spec = %{
-      id: Kashup.Element, 
-      start: {Kashup.Element, :start_link, [value, expiration]},
-      restart: :temporary,
-      shutdown: :brutal_kill,
-      type: :worker
-    }
-    DynamicSupervisor.start_child(__MODULE__, spec)
-  end
+  def start_link(init_args) do
+    Supervisor.start_link(__MODULE__, init_args, name: __MODULE__)
+  end  
 
   @impl true
-  def init(args) do
-    DynamicSupervisor.init(
-      strategy: :one_for_one,
-      extra_arguments: args
-    )
+  def init([]) do
+    element_supervisor = %{
+      id: Kashup.Element.Supervisor,
+      start: {Kashup.Element.Supervisor, :start_link, []},
+      shutdown: 2_000,
+      type: :supervisor      
+    }
+
+    event_manager = %{
+      id: Kashup.Event.Manager,
+      start: {Kashup.Event.Manager, :start_link, []},
+      shutdown: 2_000,
+    }
+
+    event_handler = worker(Kashup.Event.Handler, [], id: Kashup.Event.Handler)    
+
+    children = [
+      element_supervisor, 
+      event_manager,
+      event_handler
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end
