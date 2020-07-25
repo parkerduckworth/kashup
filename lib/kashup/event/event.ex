@@ -1,4 +1,7 @@
 defmodule Kashup.Event do
+  @moduledoc """
+  Internal API for pushing events to the event manager.
+  """
   alias Kashup.Event
 
   def start do

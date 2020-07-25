@@ -1,4 +1,7 @@
 defmodule Kashup.Event.Handler do
+  @moduledoc """
+  GenStage Consumer callback that subscribes to the event manager.
+  """
   use GenStage
   require Logger
 

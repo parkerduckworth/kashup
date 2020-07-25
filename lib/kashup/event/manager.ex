@@ -1,4 +1,7 @@
 defmodule Kashup.Event.Manager do
+  @moduledoc """
+  GenState Producer callback that dispatches events to subscribing consumers.
+  """
   use GenStage
 
   def start_link() do

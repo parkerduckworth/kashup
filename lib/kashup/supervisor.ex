@@ -1,4 +1,21 @@
 defmodule Kashup.Supervisor do
+  @moduledoc """
+  Supervisor callback that serves as Kashup's root supervisor.
+
+  The `Kashup.Element.Supervisor` is always added to the supervision tree at appliction start, and
+  `Kashup.Event.Manager` and `Kashup.Event.Handler` are added as well depending on application
+  configuration.
+
+  ## Example Configuration
+
+  ```
+  config :kashup,
+    events: true
+  ```
+
+  To silence events, either set `events: false`, or omit this field from your application
+  config entirely.
+  """
   use Supervisor
 
   import Supervisor.Spec

@@ -1,8 +1,22 @@
 defmodule Kashup do
   @moduledoc """
-  Documentation for `Kashup`.
+  Documentation for the Kashup package, a distributed in-memory key/value store.
+
+  For usage information, see the [documentation](http://hexdocs.pm/kashup), which includes guides,
+  API information for important modules, and links to useful resources.
   """
 
+  @doc """
+  Add a key/value pair to the store.
+
+  ## Example
+
+  ```
+  iex(node@net)1> Kashup.put(:joe, :armstrong)
+  :ok
+  ```
+  """
+  @spec put(any(), any()) :: :ok
   def put(key, value) do
     case Kashup.Store.get(key) do
       {:ok, pid} ->
@@ -16,6 +30,24 @@ defmodule Kashup do
     end
   end
 
+  @doc """
+  Get a value from the store with a provided key.
+
+  ## Examples
+
+  Hit
+  ```
+  iex(node@net)1> Kashup.get(:joe)
+  :armstrong
+  ```
+
+  Miss
+  ```
+  iex(node@net)1> Kashup.get(:static_typing)
+  {:error, :not_found}
+  ```
+  """
+  @spec get(any()) :: {:ok, any()} | {:error, :not_found}
   def get(key) do
     Kashup.Event.get(key)
     try do
@@ -29,6 +61,18 @@ defmodule Kashup do
     end
   end
 
+  @doc """
+  Delete a key/value pair from the store.
+
+  Returns `:ok` regardless of whether or not key is in the store.
+
+  ## Example
+  ```
+  iex(node@net)1> Kashup.delete(:static_typing)
+  :ok
+  ```
+  """
+  @spec delete(any()) :: :ok
   def delete(key) do
     case Kashup.Store.get(key) do
       {:ok, pid} -> Kashup.Element.delete(pid)
