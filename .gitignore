@@ -27,3 +27,6 @@ kashup-*.tar
 
 # Mac
 .DS_Store
+
+# Config
+/config/

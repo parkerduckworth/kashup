@@ -16,20 +16,24 @@ defmodule Kashup.Supervisor do
       type: :supervisor      
     }
 
+    children = Application.get_env(:kashup, :events)
+    |> add_event_children
+    |> Kernel.++([element_supervisor])
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  defp add_event_children(true) do
     event_manager = %{
       id: Kashup.Event.Manager,
       start: {Kashup.Event.Manager, :start_link, []},
       shutdown: 2_000,
     }
 
-    event_handler = worker(Kashup.Event.Handler, [], id: Kashup.Event.Handler)    
+    event_handler = worker(Kashup.Event.Handler, [], id: Kashup.Event.Handler) 
 
-    children = [
-      element_supervisor, 
-      event_manager,
-      event_handler
-    ]
-
-    Supervisor.init(children, strategy: :one_for_one)
+    [event_manager, event_handler]
   end
+
+  defp add_event_children(_), do: []
 end
