@@ -14,6 +14,7 @@ defmodule Kashup.Event.Handler do
 
   def handle_events(events, _from, state) do
     for event <- events do
+      # TODO: provide behavior for ad hoc event handling
       Logger.info "#{inspect {self(), event}}"
     end
     {:noreply, [], state}

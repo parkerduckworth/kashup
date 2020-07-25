@@ -3,12 +3,12 @@ defmodule Kashup.Store do
     :ets.new(__MODULE__, [:public, :named_table])
   end
 
-  def insert(key, pid) do
+  def put(key, pid) do
     :ets.insert(__MODULE__, {key, pid})
     :ok
   end
 
-  def lookup(key) do
+  def get(key) do
     case :ets.lookup(__MODULE__, key) do
       [{_key, pid}] -> {:ok, pid}
       [] -> {:error, :not_found}

@@ -5,16 +5,12 @@ defmodule Kashup.Event do
     Event.Manager.async_notify(:started)
   end
   
-  def create(key, value) do
-    Event.Manager.async_notify({:create, key, value})
+  def put(key, value, action) do
+    Event.Manager.async_notify({:put, key, value, action})
   end
 
-  def replace(key, value) do
-    Event.Manager.async_notify({:replace, key, value})
-  end
-
-  def lookup(key) do
-    Event.Manager.async_notify({:lookup, key})
+  def get(key) do
+    Event.Manager.async_notify({:get, key})
   end
 
   def delete(key) do

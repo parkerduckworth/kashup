@@ -3,23 +3,23 @@ defmodule Kashup do
   Documentation for `Kashup`.
   """
 
-  def insert(key, value) do
-    case Kashup.Store.lookup(key) do
+  def put(key, value) do
+    case Kashup.Store.get(key) do
       {:ok, pid} ->
-        Kashup.Event.replace(key, value)
+        Kashup.Event.put(key, value, :replace)
         Kashup.Element.replace(pid, value)
       {:error, _} ->
         # TODO: Find ergonomic way to introduce expirations 
         {:ok, pid} = Kashup.Element.create(value)
-        Kashup.Event.create(key, value)
-        Kashup.Store.insert(key, pid) 
+        Kashup.Event.put(key, value, :create)
+        Kashup.Store.put(key, pid) 
     end
   end
 
-  def lookup(key) do
-    Kashup.Event.lookup(key)
+  def get(key) do
+    Kashup.Event.get(key)
     try do
-      {:ok, pid} = Kashup.Store.lookup(key)
+      {:ok, pid} = Kashup.Store.get(key)
       {:ok, value} = Kashup.Element.fetch(pid)
       {:ok, value}
     rescue 
@@ -30,7 +30,7 @@ defmodule Kashup do
   end
 
   def delete(key) do
-    case Kashup.Store.lookup(key) do
+    case Kashup.Store.get(key) do
       {:ok, pid} -> Kashup.Element.delete(pid)
       _ -> :ok
     end
