@@ -24,7 +24,8 @@ defmodule Kashup do
         Kashup.Element.replace(pid, value)
       {:error, _} ->
         # TODO: Find ergonomic way to introduce expirations 
-        {:ok, pid} = Kashup.Element.create(value)
+        expiration = Application.get_env(:kashup, :expiration)
+        {:ok, pid} = Kashup.Element.create(value, expiration)
         Kashup.Event.put(key, value, :create)
         Kashup.Store.put(key, pid) 
     end
@@ -74,6 +75,7 @@ defmodule Kashup do
   """
   @spec delete(any()) :: :ok
   def delete(key) do
+    Kashup.Event.delete(key)
     case Kashup.Store.get(key) do
       {:ok, pid} -> Kashup.Element.delete(pid)
       _ -> :ok

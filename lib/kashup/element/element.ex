@@ -31,19 +31,19 @@ defmodule Kashup.Element do
     @moduledoc """
     Container for attributes describing the state of the `Kashup.Element`
     """
-    defstruct [:value, :start_time, :expiration] 
+    defstruct [:value, :expiration] 
   end
 
   def start_link(value, expiration) do
     GenServer.start_link(__MODULE__, [value, expiration], [])
   end
 
-  def create(value, expiration) do
-    Kashup.Element.Supervisor.start_child(value, expiration)
+  def create(value, expiration) when expiration == nil or expiration == false do
+    Kashup.Element.Supervisor.start_child(value, :infinity)
   end
 
-  def create(value) do
-    Kashup.Element.Supervisor.start_child(value, :infinity)
+  def create(value, expiration) do
+    Kashup.Element.Supervisor.start_child(value, expiration)
   end
 
   def fetch(pid) do
@@ -58,38 +58,39 @@ defmodule Kashup.Element do
     GenServer.cast(pid, :delete)
   end
 
-  def time_left(_start_time, :infinity), do: :infinity
+  def time_left(:infinity), do: :infinity
   
   @doc """
   Calculate the amount of time remaining before an element expires.
   """
-  def time_left(start_time, expiration) do
-    elapsed = DateTime.utc_now |> DateTime.diff(start_time)
-    case DateTime.diff(expiration, elapsed) do
+  def time_left(expiration) do
+    case DateTime.diff(expiration, DateTime.utc_now) do
       diff when diff <= 0 -> 0
-      diff -> diff
+      diff -> diff * 1000
     end
   end
 
   @impl true
   def init([value, expiration]) do
-    start_time = DateTime.utc_now()
+    expiration = DateTime.utc_now()
+    |> DateTime.add(expiration)
+    
     {
       :ok, 
-      %State{value: value, start_time: start_time, expiration: expiration},
-      time_left(start_time, expiration)
+      %State{value: value, expiration: expiration},
+      time_left(expiration)
     }
   end
 
   @impl true
   def handle_call(:fetch, _from, %State{} = state) do
-    time_left = time_left(state.start_time, state.expiration)
+    time_left = time_left(state.expiration)
     {:reply, {:ok, state.value}, state, time_left}
   end
 
   @impl true
   def handle_cast({:replace, value}, %State{} = state) do
-    time_left = time_left(state.start_time, state.expiration)
+    time_left = time_left(state.expiration)
     state = Map.put(state, :value, value)
     {:noreply, state, time_left}
   end
@@ -100,7 +101,8 @@ defmodule Kashup.Element do
   end
 
   @impl true
-  def handle_info(:timeout, state) do
+  def handle_info(:timeout, %State{} = state) do
+    Kashup.Event.expired(self(), state.value)
     {:stop, :normal, state}
   end
 

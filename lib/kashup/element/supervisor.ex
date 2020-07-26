@@ -1,6 +1,6 @@
 defmodule Kashup.Element.Supervisor do
   @moduledoc """
-  Supervisor for 0 or more `Kashup.Element` processes.
+  Supervisor for zero or more `Kashup.Element` processes.
 
   Because each key in the store has a corresponding `Kashup.Element` process, The number of
   `Kashup.Element.Supervisor`'s children is equivalent to the number of keys in the store.

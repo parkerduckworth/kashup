@@ -18,8 +18,13 @@ defmodule Kashup.Event.Handler do
   def handle_events(events, _from, state) do
     for event <- events do
       # TODO: provide behavior for ad hoc event handling
-      Logger.info "#{inspect {self(), event}}"
+      IO.puts format_event(event)
     end
     {:noreply, [], state}
+  end
+
+  def format_event(event) do
+    now = DateTime.utc_now |> DateTime.to_string
+    "[KASHUP] event: #{inspect event}, pid: #{inspect self()}, time: #{now}"
   end
 end
