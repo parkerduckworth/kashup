@@ -23,7 +23,6 @@ defmodule Kashup do
         Kashup.Event.put(key, value, :replace)
         Kashup.Element.replace(pid, value)
       {:error, _} ->
-        # TODO: Find ergonomic way to introduce expirations 
         expiration = Application.get_env(:kashup, :expiration)
         {:ok, pid} = Kashup.Element.create(value, expiration)
         Kashup.Event.put(key, value, :create)
