@@ -38,7 +38,6 @@ defmodule Kashup.MixProject do
       main: "overview",
       extra_section: "guides",
       extras: [
-        "README.md",
         "docs/overview.md"
       ]
     ]
