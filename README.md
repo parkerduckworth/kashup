@@ -18,7 +18,7 @@ Enabling Kashup configuration features requires a `:kashup` block in your applic
 
 To enable event streaming, add a the following field to the `:kashup` config block:
 
-```
+```elixir
 config :kashup,
   events: true
 ```
