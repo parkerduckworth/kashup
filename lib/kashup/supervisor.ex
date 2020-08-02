@@ -33,9 +33,11 @@ defmodule Kashup.Supervisor do
       type: :supervisor      
     }
 
+    task_supervisor = {Task.Supervisor, name: Kashup.TaskSupervisor}
+
     children = Application.get_env(:kashup, :events)
     |> add_event_children
-    |> Kernel.++([element_supervisor])
+    |> Kernel.++([element_supervisor, task_supervisor])
 
     Supervisor.init(children, strategy: :one_for_one)
   end
