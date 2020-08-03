@@ -29,7 +29,7 @@ defmodule Kashup.Supervisor do
     element_supervisor = %{
       id: Kashup.Element.Supervisor,
       start: {Kashup.Element.Supervisor, :start_link, []},
-      shutdown: 2_000,
+      shutdown: 2000,
       type: :supervisor      
     }
 

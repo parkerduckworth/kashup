@@ -26,7 +26,7 @@ defmodule Kashup.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:disco, git: "github.com/parkerduckworth/disco"},
+      {:disco, git: "https://github.com/parkerduckworth/disco"},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:gen_stage, "~> 1.0"}
     ]

@@ -19,9 +19,8 @@ defmodule Kashup.Store do
     Mnesia.delete_schema([Node.self()])
     Mnesia.start()
 
-    {ok, kashup_nodes} = Disco.fetch_capabilities(Kashup)
-
-    List.delete(kashup_nodes, Node.self())
+    Disco.fetch_capabilities(Kashup)
+    |> List.delete(Node.self())
     |> sync_db()
   end
 
@@ -36,12 +35,12 @@ defmodule Kashup.Store do
   Get a pid() with a provided key.
   """
   def get(key) do
-    with [{KeyToPid, key, pid}] <- Mnesia.dirty_read({KeyToPid, key}),
+    with [{KeyToPid, _key, pid}] <- Mnesia.dirty_read({KeyToPid, key}),
          true <- pid_alive?(pid)
     do
       {:ok, pid}
     else
-      _ -> {error, :not_found}
+      _ -> {:error, :not_found}
     end
   end
 
@@ -54,22 +53,23 @@ defmodule Kashup.Store do
   is removed.
   """
   def delete(pid) do
-    case Mnesia.dirty_index_read({KeyToPid, pid, :pid}) do
+    case Mnesia.dirty_index_read(KeyToPid, pid, :pid) do
       [record] -> Mnesia.dirty_delete_object(record)
       _ -> :ok
     end
   end
 
   defp sync_db([]) do
-    Mnesia.create_table(KeyToPid, [{index, :pid}], [attributes: [:key, :pid]])
+    Mnesia.create_table(KeyToPid, [attributes: [:key, :pid]])
+    Mnesia.add_table_index(KeyToPid, :pid)
   end
 
   defp sync_db(kashup_nodes), do: add_kashup_nodes(kashup_nodes)
 
   defp add_kashup_nodes([node | tail]) do
     case Mnesia.change_config(:extra_db_nodes, [node]) do
-      {:ok, [node]} ->
-        Mnesia.add_table_copy(schema, Node.self(), :ram_copies)
+      {:ok, [_node]} ->
+        Mnesia.add_table_copy(:schema, Node.self(), :ram_copies)
         Mnesia.add_table_copy(KeyToPid, Node.self(), :ram_copies)
         Mnesia.system_info(:tables)
         |> Mnesia.wait_for_tables(5000)
@@ -77,16 +77,16 @@ defmodule Kashup.Store do
     end
   end
 
-  defp pid_alive?(pid) when pid == self() do
+  defp pid_alive?(pid) when node(pid) == node() do
     Process.alive?(pid)
   end
 
   defp pid_alive?(pid) do
-    member? = Enum.member?(node(pid), Node.list())
+    member? = Enum.member?(Node.list(), node(pid))
 
-    task = Task.Supervisor.async({Kashup.TaskSupervisor, node(pid)}, Process, :alive?, [pid])
-    |> Task.await
+    alive? = Task.Supervisor.async({Kashup.TaskSupervisor, node(pid)}, Process, :alive?, [pid])
+    |> Task.await()
 
-    member? and task
+    member? and alive?
   end
 end
