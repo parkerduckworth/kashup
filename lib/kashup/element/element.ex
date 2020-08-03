@@ -38,7 +38,7 @@ defmodule Kashup.Element do
     GenServer.start_link(__MODULE__, [value, expiration], [])
   end
 
-  def create(value, expiration) when expiration == nil or expiration == false do
+  def create(value, :infinity) do
     Kashup.Element.Supervisor.start_child(value, :infinity)
   end
 
@@ -72,8 +72,10 @@ defmodule Kashup.Element do
 
   @impl true
   def init([value, expiration]) do
-    expiration = DateTime.utc_now()
-    |> DateTime.add(expiration)
+    expiration = case expiration do
+      :infinity -> :infinity
+      provided -> DateTime.utc_now() |> DateTime.add(provided)
+    end
     
     {
       :ok, 

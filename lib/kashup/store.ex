@@ -5,8 +5,8 @@ defmodule Kashup.Store do
   `Kashup.Store` maps provided keys to a `pid()` whose process, if alive, contains the value 
   associated with the key.
 
-  Kashup ships with [ets](https://erlang.org/doc/man/ets.html) as the default storage. 
-  You can read more about ets and Elixir [here](https://elixir-lang.org/getting-started/mix-otp/ets.html).
+  Kashup ships with [mnesia](https://erlang.org/doc/man/mnesia.html) as the default storage. 
+  You can read more about mnesia and Elixir [here](https://elixirschool.com/en/lessons/specifics/mnesia/).
   """
 
   alias :mnesia, as: Mnesia

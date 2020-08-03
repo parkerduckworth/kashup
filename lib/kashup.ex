@@ -23,7 +23,7 @@ defmodule Kashup do
         Kashup.Event.put(key, value, :replace)
         Kashup.Element.replace(pid, value)
       {:error, _} ->
-        expiration = Application.get_env(:kashup, :expiration)
+        expiration = Application.get_env(:kashup, :expiration, :infinity)
         {:ok, pid} = Kashup.Element.create(value, expiration)
         Kashup.Event.put(key, value, :create)
         Kashup.Store.put(key, pid) 
